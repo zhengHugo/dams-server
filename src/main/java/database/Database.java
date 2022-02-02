@@ -6,7 +6,7 @@ import model.appointment.AppointmentId;
 import model.appointment.AppointmentType;
 
 public class Database {
-  private HashMap<AppointmentType, HashMap<AppointmentId, Integer>> hashMap;
+  private final HashMap<AppointmentType, HashMap<AppointmentId, Integer>> hashMap;
   private static Database instance;
 
   private Database() {
