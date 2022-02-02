@@ -30,4 +30,23 @@ public class AppointmentId implements Serializable, Comparable<AppointmentId> {
     }
     return this.date.compareTo(anotherId.date);
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    AppointmentId that = (AppointmentId) o;
+
+    return this.getId().equals(that.getId());
+  }
+
+  @Override
+  public int hashCode() {
+    return this.getId().hashCode();
+  }
 }

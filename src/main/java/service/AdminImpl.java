@@ -48,14 +48,16 @@ public class AdminImpl implements Admin {
       AppointmentId appointmentId, AppointmentType appointmentType) throws RemoteException {
     database
         .findByTypeAndId(appointmentType, appointmentId)
-        .ifPresent(
+        .ifPresentOrElse(
             appointment -> {
               var patientIds = appointment.getPatientIds();
               if (patientIds.size() > 0) {
                 putPatientsAfterAppointment(patientIds, appointmentType, appointmentId);
               }
               database.remove(appointmentId, appointmentType);
-            });
+              logger.info("The target appointment is removed.");
+            },
+            () -> logger.info("The target appointment does not exist."));
     return true;
   }
 

@@ -28,7 +28,6 @@ public class Database {
       hashMap.put(type, new HashMap<>());
     }
     hashMap.get(type).put(id, new Appointment(id, capacity));
-    System.out.println("Appointment is added: " + id.getId());
   }
 
   public synchronized void remove(AppointmentId id, AppointmentType type) {
