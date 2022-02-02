@@ -7,7 +7,7 @@ import java.util.Date;
 
 import model.common.City;
 
-public class AppointmentId implements Serializable {
+public class AppointmentId implements Serializable, Comparable<AppointmentId> {
   private final City city;
   private final AppointmentTime time;
   private final Date date;
@@ -21,5 +21,13 @@ public class AppointmentId implements Serializable {
 
   public String getId() {
     return city.code + time.code + dateFormat.format(date);
+  }
+
+  @Override
+  public int compareTo(AppointmentId anotherId) {
+    if (this.date.compareTo(anotherId.date) == 0) {
+      return this.time.compareTo(anotherId.time);
+    }
+    return this.date.compareTo(anotherId.date);
   }
 }

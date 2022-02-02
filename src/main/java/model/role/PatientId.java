@@ -20,4 +20,9 @@ public class PatientId implements ClientId {
   public City getCity() {
     return this.city;
   }
+
+  @Override
+  public String toString() {
+    return this.getId();
+  }
 }
