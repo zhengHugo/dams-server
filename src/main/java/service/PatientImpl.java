@@ -22,10 +22,10 @@ public class PatientImpl implements Patient {
   }
 
   @Override
-  public synchronized void bookAppointment(
+  public synchronized boolean bookAppointment(
       PatientId patientId, AppointmentId appointmentId, AppointmentType type)
       throws RemoteException {
-
+    return false;
   }
 
   @Override
@@ -34,6 +34,8 @@ public class PatientImpl implements Patient {
   }
 
   @Override
-  public synchronized void cancelAppointment(PatientId patientId, AppointmentId appointmentId)
-      throws RemoteException {}
+  public synchronized boolean cancelAppointment(PatientId patientId, AppointmentId appointmentId)
+      throws RemoteException {
+    return false;
+  }
 }

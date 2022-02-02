@@ -1,8 +1,6 @@
 package service;
 
 import java.rmi.RemoteException;
-import java.rmi.server.RemoteServer;
-import java.rmi.server.ServerNotActiveException;
 import java.util.List;
 
 import api.Admin;
@@ -29,20 +27,20 @@ public class AdminImpl implements Admin {
   }
 
   @Override
-  public synchronized void addAppointment(
+  public synchronized boolean addAppointment(
       AppointmentId appointmentId, AppointmentType appointmentType, int capacity)
       throws RemoteException {
-    database.add(appointmentId, appointmentType, capacity);
-    try {
-      System.out.println(RemoteServer.getClientHost());
-    } catch (ServerNotActiveException e) {
-      e.printStackTrace();
+    if (database.findByTypeAndId(appointmentType, appointmentId).isEmpty()) {
+      database.add(appointmentId, appointmentType, capacity);
     }
+    return true;
   }
 
   @Override
-  public synchronized void removeAppointment(
-      AppointmentId appointmentId, AppointmentType appointmentType) throws RemoteException {}
+  public synchronized boolean removeAppointment(
+      AppointmentId appointmentId, AppointmentType appointmentType) throws RemoteException {
+    return false;
+  }
 
   @Override
   public List<Appointment> listAppointmentAvailability(AppointmentType appointmentType)
@@ -51,10 +49,10 @@ public class AdminImpl implements Admin {
   }
 
   @Override
-  public synchronized void bookAppointment(
+  public synchronized boolean bookAppointment(
       PatientId patientId, AppointmentId appointmentId, AppointmentType type)
       throws RemoteException {
-    this.patient.bookAppointment(patientId, appointmentId, type);
+    return this.patient.bookAppointment(patientId, appointmentId, type);
   }
 
   @Override
@@ -63,8 +61,8 @@ public class AdminImpl implements Admin {
   }
 
   @Override
-  public synchronized void cancelAppointment(PatientId patientId, AppointmentId appointmentId)
+  public synchronized boolean cancelAppointment(PatientId patientId, AppointmentId appointmentId)
       throws RemoteException {
-    this.patient.cancelAppointment(patientId, appointmentId);
+    return this.patient.cancelAppointment(patientId, appointmentId);
   }
 }

@@ -1,6 +1,6 @@
 package model.role;
 
-import model.City;
+import model.common.City;
 import model.common.ClientId;
 
 public class AdminId implements ClientId {

@@ -10,10 +10,29 @@ import model.appointment.AppointmentType;
 import model.role.PatientId;
 
 public interface Patient extends Remote {
-  void bookAppointment(PatientId patientId, AppointmentId appointmentId, AppointmentType type)
+
+  /**
+   * Book an appointment
+   * @param patientId Patient id
+   * @param appointmentId Appointment id
+   * @param type Appointment capacity
+   * @return true if operation is successful
+   */
+  boolean bookAppointment(PatientId patientId, AppointmentId appointmentId, AppointmentType type)
       throws RemoteException;
 
+  /**
+   * List all appointments associated with this patient
+   * @param patientId Patient id
+   * @return a list of appointments associated with this patient
+   */
   List<Appointment> getAppointmentSchedule(PatientId patientId) throws RemoteException;
 
-  void cancelAppointment(PatientId patientId, AppointmentId appointmentId) throws RemoteException;
+  /**
+   * Cancel an appointment
+   * @param patientId Patient id
+   * @param appointmentId Appointment id
+   * @return true if operation is successful
+   */
+  boolean cancelAppointment(PatientId patientId, AppointmentId appointmentId) throws RemoteException;
 }

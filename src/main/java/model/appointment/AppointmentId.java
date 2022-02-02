@@ -5,7 +5,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import model.City;
+import model.common.City;
 
 public class AppointmentId implements Serializable {
   private final City city;
