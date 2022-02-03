@@ -7,6 +7,7 @@ import java.util.Optional;
 import model.appointment.Appointment;
 import model.appointment.AppointmentId;
 import model.appointment.AppointmentType;
+import model.role.PatientId;
 
 public class Database {
   private final HashMap<AppointmentType, HashMap<AppointmentId, Appointment>> hashMap;
@@ -28,6 +29,15 @@ public class Database {
       hashMap.put(type, new HashMap<>());
     }
     hashMap.get(type).put(id, new Appointment(id, capacity));
+  }
+
+  public synchronized void add(PatientId patientId, AppointmentId appointmentId, AppointmentType type) {
+    if (!hashMap.containsKey(type)) {
+      hashMap.put(type, new HashMap<>());
+    }
+    hashMap.get(type).get(appointmentId).addPatient(patientId);
+    int capacity = hashMap.get(type).get(appointmentId).getRemainingCapacity();
+    hashMap.get(type).put(appointmentId, new Appointment(appointmentId, capacity));
   }
 
   public synchronized void remove(AppointmentId id, AppointmentType type) {
