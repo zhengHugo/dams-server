@@ -1,9 +1,9 @@
 package database;
 
-import java.util.HashMap;
+import java.util.*;
 
 import java.util.Map.Entry;
-import java.util.Optional;
+
 import model.appointment.Appointment;
 import model.appointment.AppointmentId;
 import model.appointment.AppointmentType;
@@ -64,26 +64,52 @@ public class Database {
     }
   }
 
+  public List<Appointment> findById(PatientId pid) {
+    List<Appointment> appointments = null;
+    hashMap.values().forEach(mmp-> mmp.values().forEach(mmp2-> {
+              ArrayList<PatientId> ids= mmp2.getPatientIds();
+              for(PatientId idd:ids){
+                if (idd == pid) {
+                  AppointmentId appointId = mmp2.getAppointmentId();
+                  var appointment = mmp.get(appointId);
+                  appointments.add(appointment);
+
+                }
+              }
+            })
+    );
+    if (appointments != null) {
+      return appointments;
+    } else {
+      return Collections.emptyList();
+    }
+  }
+
+
+
+
+
+
   public Optional<AppointmentId> findNextAppointmentId(
-      AppointmentType type, AppointmentId thisId) {
+          AppointmentType type, AppointmentId thisId) {
     // 1. Get the inner hashmap that contain this appointment
     // 2. Iterator over the inner hashmap and get the next available one
     var innerHashMap = hashMap.get(type);
     if (innerHashMap != null) {
       AppointmentId nextAvailableAppointmentId = null;
       for (Entry<AppointmentId, Appointment> appointmentIdAppointmentEntry :
-          innerHashMap.entrySet()) {
+              innerHashMap.entrySet()) {
         var nextId = appointmentIdAppointmentEntry.getKey();
         if (thisId.compareTo(nextId) < 0) {
           if (nextAvailableAppointmentId == null
-              || nextId.compareTo(nextAvailableAppointmentId) < 0) {
+                  || nextId.compareTo(nextAvailableAppointmentId) < 0) {
             nextAvailableAppointmentId = nextId;
           }
         }
       }
       return nextAvailableAppointmentId == null
-          ? Optional.empty()
-          : Optional.of(nextAvailableAppointmentId);
+              ? Optional.empty()
+              : Optional.of(nextAvailableAppointmentId);
     }
     return Optional.empty();
   }

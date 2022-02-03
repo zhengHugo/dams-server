@@ -1,6 +1,7 @@
 package service;
 
 import java.rmi.RemoteException;
+import java.util.Arrays;
 import java.util.List;
 
 import api.Patient;
@@ -12,10 +13,13 @@ import model.role.PatientId;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import static model.appointment.AppointmentType.*;
+
 public class PatientImpl implements Patient {
   private static PatientImpl instance;
   private final Database database = Database.getInstance();
   private static final Logger logger = LogManager.getLogger();
+  private final PatientImpl patient = PatientImpl.getInstance();
 
   private PatientImpl(){}
 
@@ -28,23 +32,23 @@ public class PatientImpl implements Patient {
 
   @Override
   public synchronized boolean bookAppointment(
-      PatientId patientId, AppointmentId appointmentId, AppointmentType type)
-      throws RemoteException {
+          PatientId patientId, AppointmentId appointmentId, AppointmentType type)
+          throws RemoteException {
     database.add(patientId,appointmentId,type);
     logger.info(
             "Book appointment success: %s, %s"
                     .formatted(type.toString(), appointmentId.getId()));
-  return true;
+    return true;
   }
 
   @Override
   public List<Appointment> getAppointmentSchedule(PatientId patientId) throws RemoteException {
-    return null;
+    return database.findById(patientId);
   }
 
   @Override
   public synchronized boolean cancelAppointment(PatientId patientId, AppointmentId appointmentId)
-      throws RemoteException {
+          throws RemoteException {
     return false;
   }
 }
