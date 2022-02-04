@@ -49,6 +49,8 @@ public class PatientImpl implements Patient {
   @Override
   public synchronized boolean cancelAppointment(PatientId patientId, AppointmentId appointmentId)
           throws RemoteException {
-    return false;
+      database.remove(patientId,appointmentId);
+    logger.info("The target appointment is removed.");
+    return true;
   }
 }

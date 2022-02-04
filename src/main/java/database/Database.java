@@ -50,6 +50,16 @@ public class Database {
     }
   }
 
+  public synchronized void remove(PatientId patientId, AppointmentId appointmentId) {
+    hashMap.values().forEach(app-> {
+      for (AppointmentId id:app.keySet()){
+        if (id == appointmentId) {
+          app.remove(id);
+        }
+      }
+    });
+  }
+
   public Optional<Appointment> findByTypeAndId(AppointmentType type, AppointmentId id) {
     var innerHashMap = hashMap.get(type);
     if (innerHashMap != null) {
