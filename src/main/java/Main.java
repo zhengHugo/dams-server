@@ -1,3 +1,4 @@
+import common.GlobalConstants;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -26,8 +27,8 @@ public class Main {
       Admin adminStub = (Admin) UnicastRemoteObject.exportObject(AdminImpl.getInstance(), 0);
       Patient patientStub = (Patient) UnicastRemoteObject.exportObject(PatientImpl.getInstance(), 0);
       Registry registry = LocateRegistry.getRegistry();
-      registry.rebind("AdminMTL", adminStub);
-      registry.rebind("PatientMTL", patientStub);
+      registry.rebind("Admin" + GlobalConstants.thisCity.code, adminStub);
+      registry.rebind("Patient" + GlobalConstants.thisCity.code, patientStub);
 
       logger.info("Server is ready");
 
