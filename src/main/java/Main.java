@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import service.AdminImpl;
 import service.PatientImpl;
+import service.interserver.UdpServer;
 
 public class Main {
 
@@ -18,6 +19,10 @@ public class Main {
     System.setProperty("java.rmi.server.hostname", "localhost");
     try {
       logger.info("Starting the server");
+
+      // start the UDP server
+      UdpServer.startListening();
+
       Admin adminStub = (Admin) UnicastRemoteObject.exportObject(AdminImpl.getInstance(), 0);
       Patient patientStub = (Patient) UnicastRemoteObject.exportObject(PatientImpl.getInstance(), 0);
       Registry registry = LocateRegistry.getRegistry();

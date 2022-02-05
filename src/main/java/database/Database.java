@@ -1,7 +1,10 @@
 package database;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
 import model.appointment.Appointment;
@@ -51,6 +54,15 @@ public class Database {
       }
     } else {
       return Optional.empty();
+    }
+  }
+
+  public Collection<Appointment> findAllByType(AppointmentType type){
+    var innerHashMap = hashMap.get(type);
+    if (innerHashMap != null) {
+      return innerHashMap.values();
+    } else {
+      return new ArrayList<>();
     }
   }
 

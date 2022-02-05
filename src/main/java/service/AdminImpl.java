@@ -6,11 +6,13 @@ import java.util.List;
 import api.Admin;
 import database.Database;
 import model.appointment.Appointment;
+import model.appointment.AppointmentAvailability;
 import model.appointment.AppointmentId;
 import model.appointment.AppointmentType;
 import model.role.PatientId;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import service.interserver.UdpClient;
 
 public class AdminImpl implements Admin {
 
@@ -62,9 +64,9 @@ public class AdminImpl implements Admin {
   }
 
   @Override
-  public List<Appointment> listAppointmentAvailability(AppointmentType appointmentType)
+  public List<AppointmentAvailability> listAppointmentAvailability(AppointmentType appointmentType)
       throws RemoteException {
-    return null;
+    return UdpClient.requestAppointments(appointmentType);
   }
 
   @Override
