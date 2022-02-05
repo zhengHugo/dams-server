@@ -14,6 +14,7 @@ public interface Admin extends Remote {
 
   /**
    * Create a new appointment slot
+   *
    * @param appointmentId Appointment id
    * @param appointmentType Appointment type
    * @param capacity Appointment capacity
@@ -24,6 +25,7 @@ public interface Admin extends Remote {
 
   /**
    * Remove a new appointment slot
+   *
    * @param appointmentId Appointment id
    * @param appointmentType Appointment type
    * @return true if operation is successful
@@ -33,6 +35,7 @@ public interface Admin extends Remote {
 
   /**
    * List the number of spaces of all appointments
+   *
    * @param appointmentType Appointment type
    * @return a list of appointments whose capacity is the available number
    */
@@ -41,6 +44,7 @@ public interface Admin extends Remote {
 
   /**
    * Book an appointment
+   *
    * @param patientId Patient id
    * @param appointmentId Appointment id
    * @param type Appointment capacity
@@ -51,6 +55,7 @@ public interface Admin extends Remote {
 
   /**
    * List all appointments associated with this patient
+   *
    * @param patientId Patient id
    * @return a list of appointments associated with this patient
    */
@@ -58,9 +63,11 @@ public interface Admin extends Remote {
 
   /**
    * Cancel an appointment
+   *
    * @param patientId Patient id
    * @param appointmentId Appointment id
    * @return true if operation is successful
    */
-  boolean cancelAppointment(PatientId patientId, AppointmentId appointmentId) throws RemoteException;
+  boolean cancelAppointment(PatientId patientId, AppointmentId appointmentId)
+      throws RemoteException;
 }

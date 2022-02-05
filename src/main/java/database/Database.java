@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
-import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
 import model.appointment.Appointment;
@@ -57,7 +56,7 @@ public class Database {
     }
   }
 
-  public Collection<Appointment> findAllByType(AppointmentType type){
+  public Collection<Appointment> findAllByType(AppointmentType type) {
     var innerHashMap = hashMap.get(type);
     if (innerHashMap != null) {
       return innerHashMap.values();
@@ -66,8 +65,7 @@ public class Database {
     }
   }
 
-  public Optional<AppointmentId> findNextAppointmentId(
-      AppointmentType type, AppointmentId thisId) {
+  public Optional<AppointmentId> findNextAppointmentId(AppointmentType type, AppointmentId thisId) {
     // 1. Get the inner hashmap that contain this appointment
     // 2. Iterator over the inner hashmap and get the next available one
     var innerHashMap = hashMap.get(type);

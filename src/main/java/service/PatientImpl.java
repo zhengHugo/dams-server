@@ -12,7 +12,7 @@ import model.role.PatientId;
 public class PatientImpl implements Patient {
   private static PatientImpl instance;
 
-  private PatientImpl(){}
+  private PatientImpl() {}
 
   public static synchronized PatientImpl getInstance() {
     if (instance == null) {
