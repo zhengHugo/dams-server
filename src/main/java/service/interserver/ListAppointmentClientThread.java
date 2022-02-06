@@ -42,7 +42,7 @@ public class ListAppointmentClientThread implements Runnable {
       DatagramPacket request = new DatagramPacket(data, data.length, host, getPortByCity(targetCity));
       socket.send(request);
       logger.info("Requesting availabilities from " + targetCity);
-      byte[] buffer = new byte[256];
+      byte[] buffer = new byte[32768];
       DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
       socket.receive(reply);
       var responseBytes = reply.getData();

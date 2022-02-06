@@ -27,7 +27,7 @@ public class ListAppointmentServerThread implements Runnable {
   @Override
   public void run() {
     try (DatagramSocket socket = new DatagramSocket(getPortByCity(GlobalConstants.thisCity))) {
-      byte[] buffer = new byte[256];
+      byte[] buffer = new byte[32768];
 
       while (true) {
         DatagramPacket request = new DatagramPacket(buffer, buffer.length);
@@ -50,6 +50,7 @@ public class ListAppointmentServerThread implements Runnable {
           objectOutputStream.close();
 
           var replyData = byteArrayOutputStream.toByteArray();
+          logger.info("replyData length is: " + replyData.length);
 
           DatagramPacket reply =
               new DatagramPacket(
@@ -69,7 +70,7 @@ public class ListAppointmentServerThread implements Runnable {
         .map(
             appointment ->
                 new AppointmentAvailability(
-                    appointment.getAppointmentId(), appointment.getRemainingCapacity()))
+                    appointment.getAppointmentId().getId(), appointment.getRemainingCapacity()))
         .collect(Collectors.toList());
   }
 

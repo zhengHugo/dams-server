@@ -21,7 +21,7 @@ public class UdpClient {
       case Sherbrooke -> requestToCities(City.Montreal, City.Quebec, type);
     };
      availabilities.addAll(database.findAllByType(type).stream().map(
-         appointment -> new AppointmentAvailability(appointment.getAppointmentId(),
+         appointment -> new AppointmentAvailability(appointment.getAppointmentId().getId(),
              appointment.getRemainingCapacity())).toList());
      logger.info("Appointment availabilities received: " + availabilities);
      return availabilities;
