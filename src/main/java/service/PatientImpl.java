@@ -1,8 +1,9 @@
 package service;
 
 import java.rmi.RemoteException;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import api.Patient;
 import database.Database;
@@ -12,8 +13,6 @@ import model.appointment.AppointmentType;
 import model.role.PatientId;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import static model.appointment.AppointmentType.*;
 
 public class PatientImpl implements Patient {
   private static PatientImpl instance;
@@ -34,7 +33,12 @@ public class PatientImpl implements Patient {
   public synchronized boolean bookAppointment(
           PatientId patientId, AppointmentId appointmentId, AppointmentType type)
           throws RemoteException {
-    database.add(patientId,appointmentId,type);
+
+    Optional<Appointment> appointment = database.findByTypeAndId(type, appointmentId);
+    ArrayList<PatientId> patientIds = appointment.get().addPatient(patientId);
+    int capacity = appointment.get().getRemainingCapacity();
+    database.update(new Appointment(appointmentId, capacity, patientIds), appointmentId);
+
     logger.info(
             "Book appointment success: %s, %s"
                     .formatted(type.toString(), appointmentId.getId()));
@@ -43,13 +47,20 @@ public class PatientImpl implements Patient {
 
   @Override
   public List<Appointment> getAppointmentSchedule(PatientId patientId) throws RemoteException {
-    return database.findById(patientId);
+    return database.findAllByPatientId(patientId);
   }
 
   @Override
   public synchronized boolean cancelAppointment(PatientId patientId, AppointmentId appointmentId)
           throws RemoteException {
-      database.remove(patientId,appointmentId);
+    List<Appointment> appointmentList = database.findAllByPatientId(patientId);
+    appointmentList.forEach(appointment -> {
+      if (appointment.getAppointmentId() == appointmentId) {
+        ArrayList<PatientId> patientIds = appointment.removePatient(patientId);
+        int capacity = appointment.getRemainingCapacity();
+        database.update(new Appointment(appointmentId, capacity, patientIds), appointmentId);
+      }
+    });
     logger.info("The target appointment is removed.");
     return true;
   }

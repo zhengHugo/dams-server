@@ -31,14 +31,19 @@ public class Database {
     hashMap.get(type).put(id, new Appointment(id, capacity));
   }
 
-  public synchronized void add(PatientId patientId, AppointmentId appointmentId, AppointmentType type) {
-    if (!hashMap.containsKey(type)) {
-      hashMap.put(type, new HashMap<>());
-    }
-    hashMap.get(type).get(appointmentId).addPatient(patientId);
-    int capacity = hashMap.get(type).get(appointmentId).getRemainingCapacity();
-    hashMap.get(type).put(appointmentId, new Appointment(appointmentId, capacity));
+
+  public synchronized void update(Appointment appointment, AppointmentId appointmentId) {
+
+    for (AppointmentType type :AppointmentType.values()) {
+     if(hashMap.get(type).containsKey(appointmentId)) {
+       AppointmentType type1 = type;
+       hashMap.get(type1).replace(appointmentId, appointment);
+     }
+   }
+
+
   }
+
 
   public synchronized void remove(AppointmentId id, AppointmentType type) {
     var innerHashMap = hashMap.get(type);
@@ -74,25 +79,19 @@ public class Database {
     }
   }
 
-  public List<Appointment> findById(PatientId pid) {
-    List<Appointment> appointments = null;
+  public List<Appointment> findAllByPatientId(PatientId pid) {
+    List<Appointment> appointments = new ArrayList<>();
     hashMap.values().forEach(mmp-> mmp.values().forEach(mmp2-> {
               ArrayList<PatientId> ids= mmp2.getPatientIds();
               for(PatientId idd:ids){
                 if (idd == pid) {
-                  AppointmentId appointId = mmp2.getAppointmentId();
-                  var appointment = mmp.get(appointId);
-                  appointments.add(appointment);
-
+                  appointments.add(mmp2);
                 }
               }
             })
     );
-    if (appointments != null) {
       return appointments;
-    } else {
-      return Collections.emptyList();
-    }
+
   }
 
 

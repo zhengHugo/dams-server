@@ -15,6 +15,12 @@ public class Appointment {
     this.patientIds = new ArrayList<>();
   }
 
+  public Appointment(AppointmentId appointmentId, int capacity, ArrayList<PatientId> patientIds) {
+    this.appointmentId = appointmentId;
+    this.capacity = capacity;
+    this.patientIds = patientIds;
+  }
+
   public AppointmentId getAppointmentId() {
     return this.appointmentId;
   }
@@ -27,10 +33,11 @@ public class Appointment {
     return patientIds;
   }
 
-  public synchronized void addPatient(PatientId id) {
+  public synchronized ArrayList<PatientId> addPatient(PatientId id) {
     if (patientIds.size() < capacity) {
       this.patientIds.add(id);
     }
+    return patientIds;
   }
 
   public synchronized void addPatients(Collection<PatientId> ids) {
@@ -39,5 +46,12 @@ public class Appointment {
     } else {
       throw new IllegalArgumentException("Number of new patients exceeds the limit.");
     }
+  }
+
+  public synchronized ArrayList<PatientId> removePatient(PatientId id) {
+    if (patientIds.size() < capacity) {
+      this.patientIds.remove(id);
+    }
+    return patientIds;
   }
 }
