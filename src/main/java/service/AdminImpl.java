@@ -5,6 +5,7 @@ import java.util.List;
 
 import api.Admin;
 import database.Database;
+import java.util.concurrent.atomic.AtomicReference;
 import model.appointment.Appointment;
 import model.appointment.AppointmentAvailability;
 import model.appointment.AppointmentId;
@@ -38,29 +39,40 @@ public class AdminImpl implements Admin {
       throws RemoteException {
     if (database.findByTypeAndId(appointmentType, appointmentId).isEmpty()) {
       database.add(appointmentId, appointmentType, capacity);
+      logger.info(
+          "Appointment is added: %s, %s"
+              .formatted(appointmentType.toString(), appointmentId.getId()));
+      return true;
+    } else {
+      logger.info(
+          "Appointment is not added because appointment already exists with type: %s, id: %s"
+              .formatted(appointmentType, appointmentId.getId()));
+      return false;
     }
-    logger.info(
-        "Appointment is added: %s, %s"
-            .formatted(appointmentType.toString(), appointmentId.getId()));
-    return true;
   }
 
   @Override
-  public synchronized boolean removeAppointment(
+  public synchronized String removeAppointment(
       AppointmentId appointmentId, AppointmentType appointmentType) throws RemoteException {
+    AtomicReference<String> message = new AtomicReference<>();
     database
         .findByTypeAndId(appointmentType, appointmentId)
         .ifPresentOrElse(
             appointment -> {
               var patientIds = appointment.getPatientIds();
               if (patientIds.size() > 0) {
-                putPatientsAfterAppointment(patientIds, appointmentType, appointmentId);
+                message.set(
+                    putPatientsAfterAppointment(patientIds, appointmentType, appointmentId));
               }
               database.remove(appointmentId, appointmentType);
-              logger.info("The target appointment is removed.");
+              message.set("The target appointment is removed.");
+              logger.info(message.get());
             },
-            () -> logger.info("The target appointment does not exist."));
-    return true;
+            () -> {
+              message.set("The target appointment does not exist.");
+              logger.info(message.get());
+            });
+    return message.get();
   }
 
   @Override
@@ -91,9 +103,10 @@ public class AdminImpl implements Admin {
     return database.findByTypeAndId(type, id).orElseThrow().getPatientIds();
   }
 
-  private synchronized void putPatientsAfterAppointment(
+  private synchronized String putPatientsAfterAppointment(
       List<PatientId> patientIds, AppointmentType type, AppointmentId id) {
     var targetAppointmentOptional = database.findByTypeAndId(type, id);
+    String message = "";
     if (targetAppointmentOptional.isPresent()) {
       var nextAppointmentIdOptional = database.findNextAppointmentId(type, id);
       if (nextAppointmentIdOptional.isPresent()) {
@@ -103,21 +116,25 @@ public class AdminImpl implements Admin {
           // next appointment cannot fit all patients; try put them to later ones
           int fromIndex = nextApp.getRemainingCapacity();
           nextApp.addPatients(patientIds.subList(0, fromIndex));
-          logger.info(
-              "Patient(s) %s are assigned to appointment %s:%s".formatted(patientIds, type, id));
+          message =
+              "Patient(s) %s are assigned to appointment %s:%s"
+                  .formatted(patientIds.subList(0, fromIndex), type, id);
+          logger.info(message);
           putPatientsAfterAppointment(
               patientIds.subList(fromIndex, patientIds.size()), type, nextAppId);
         } else {
           nextApp.addPatients(patientIds);
-          logger.info(
-              "Patient(s) %s are assigned to appointment %s:%s".formatted(patientIds, type, id));
+          message =
+              "Patient(s) %s are assigned to appointment %s:%s".formatted(patientIds, type, id);
+          logger.info(message);
         }
       } else {
         // this is the last appointment; no future appointment is available
-        logger.warn(
-            "Patient(s) %s are dropped from appointment %s:%s because no future appointments are available"
-                .formatted(patientIds, type, id));
+        message =
+            "Patient(s) %s are dropped from appointments because no future appointments are available";
+        logger.warn(message);
       }
     }
+    return message;
   }
 }

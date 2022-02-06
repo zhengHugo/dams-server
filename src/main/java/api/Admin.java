@@ -30,7 +30,7 @@ public interface Admin extends Remote {
    * @param appointmentType Appointment type
    * @return true if operation is successful
    */
-  boolean removeAppointment(AppointmentId appointmentId, AppointmentType appointmentType)
+  String removeAppointment(AppointmentId appointmentId, AppointmentType appointmentType)
       throws RemoteException;
 
   /**
