@@ -16,10 +16,13 @@ import model.appointment.Appointment;
 import model.appointment.AppointmentAvailability;
 import model.appointment.AppointmentType;
 import model.common.City;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class ListAppointmentServerThread implements Runnable {
 
   private final Database database = Database.getInstance();
+  private final Logger logger = LogManager.getLogger();
 
   @Override
   public void run() {
@@ -29,6 +32,8 @@ public class ListAppointmentServerThread implements Runnable {
       while (true) {
         DatagramPacket request = new DatagramPacket(buffer, buffer.length);
         socket.receive(request);
+        logger.info("Received request for availability.");
+
         var requestData = request.getData();
 
         ObjectInputStream objectInputStream =
@@ -50,6 +55,7 @@ public class ListAppointmentServerThread implements Runnable {
               new DatagramPacket(
                   replyData, replyData.length, request.getAddress(), request.getPort());
           socket.send(reply);
+          logger.info("Replied request for availability with data: " + availabilities);
         }
       }
     } catch (IOException | ClassNotFoundException e) {
