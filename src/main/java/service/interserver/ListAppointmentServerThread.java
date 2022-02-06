@@ -50,7 +50,7 @@ public class ListAppointmentServerThread implements Runnable {
           objectOutputStream.close();
 
           var replyData = byteArrayOutputStream.toByteArray();
-          logger.info("replyData length is: " + replyData.length);
+          logger.debug("replyData length is: " + replyData.length);
 
           DatagramPacket reply =
               new DatagramPacket(
