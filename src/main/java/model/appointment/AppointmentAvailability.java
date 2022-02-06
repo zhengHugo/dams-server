@@ -1,3 +1,6 @@
 package model.appointment;
 
-public record AppointmentAvailability(AppointmentId appointmentId, int availability){}
+import java.io.Serializable;
+
+public record AppointmentAvailability(AppointmentId appointmentId, int availability) implements
+    Serializable {}

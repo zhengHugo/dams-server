@@ -4,13 +4,16 @@ import common.GlobalConstants;
 import database.Database;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import model.appointment.AppointmentAvailability;
 import model.appointment.AppointmentType;
 import model.common.City;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class UdpClient {
   private static final Database database = Database.getInstance();
+  private static final Logger logger = LogManager.getLogger();
+
   public static List<AppointmentAvailability> requestAppointments(AppointmentType type) {
     var availabilities  = switch (GlobalConstants.thisCity) {
       case Montreal -> requestToCities(City.Quebec, City.Sherbrooke, type);
@@ -20,6 +23,7 @@ public class UdpClient {
      availabilities.addAll(database.findAllByType(type).stream().map(
          appointment -> new AppointmentAvailability(appointment.getAppointmentId(),
              appointment.getRemainingCapacity())).toList());
+     logger.info("Appointment availabilities received: " + availabilities);
      return availabilities;
   }
 

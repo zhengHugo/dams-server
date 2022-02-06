@@ -41,6 +41,7 @@ public class ListAppointmentClientThread implements Runnable {
 
       DatagramPacket request = new DatagramPacket(data, data.length, host, getPortByCity(targetCity));
       socket.send(request);
+      logger.info("Requesting availabilities from " + targetCity);
       byte[] buffer = new byte[256];
       DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
       socket.receive(reply);
@@ -48,6 +49,7 @@ public class ListAppointmentClientThread implements Runnable {
       ObjectInputStream objectInputStream = new ObjectInputStream(new ByteArrayInputStream(responseBytes));
 
       availabilities = (List<AppointmentAvailability>)objectInputStream.readObject();
+      logger.info("Received availabilities from " + targetCity + " : " + availabilities);
 
     } catch (IOException | ClassNotFoundException e) {
       e.printStackTrace();
