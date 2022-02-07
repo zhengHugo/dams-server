@@ -1,14 +1,11 @@
 package database;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
+import java.util.*;
 
-import java.util.Map.Entry;
-import java.util.Optional;
 import model.appointment.Appointment;
 import model.appointment.AppointmentId;
 import model.appointment.AppointmentType;
+import model.role.PatientId;
 
 public class Database {
   private final HashMap<AppointmentType, HashMap<AppointmentId, Appointment>> hashMap;
@@ -31,6 +28,21 @@ public class Database {
     }
     hashMap.get(type).put(id, new Appointment(id, capacity));
   }
+
+  public synchronized void update(Appointment appointment, AppointmentType appointmentType) {
+
+    var innerHashmap = hashMap.get(appointmentType);
+    if (innerHashmap != null) {
+      AppointmentId id = appointment.getAppointmentId();
+      if (innerHashmap.get(id) == null) {
+        // the appointment doesn't exist before this update.
+        // something went wrong
+      } else {
+        innerHashmap.replace(id, appointment);
+      }
+    }
+    }
+
 
   public synchronized void remove(AppointmentId id, AppointmentType type) {
     var innerHashMap = hashMap.get(type);
@@ -56,6 +68,26 @@ public class Database {
     }
   }
 
+
+  public List<Appointment> findAllByPatientId(PatientId pid) {
+    List<Appointment> appointments = new ArrayList<>();
+    hashMap
+        .values()
+        .forEach(
+            mmp ->
+                mmp.values()
+                    .forEach(
+                        mmp2 -> {
+                          ArrayList<PatientId> ids = mmp2.getPatientIds();
+                          for (PatientId idd : ids) {
+                            if (idd == pid) {
+                              appointments.add(mmp2);
+                            }
+                          }
+                        }));
+    return appointments;
+  }
+
   public Collection<Appointment> findAllByType(AppointmentType type) {
     var innerHashMap = hashMap.get(type);
     if (innerHashMap != null) {
@@ -63,6 +95,7 @@ public class Database {
     } else {
       return new ArrayList<>();
     }
+
   }
 
   public Optional<AppointmentId> findNextAppointmentId(AppointmentType type, AppointmentId thisId) {
