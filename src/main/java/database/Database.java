@@ -2,8 +2,6 @@ package database;
 
 import java.util.*;
 
-import java.util.Map.Entry;
-
 import model.appointment.Appointment;
 import model.appointment.AppointmentId;
 import model.appointment.AppointmentType;
@@ -70,6 +68,7 @@ public class Database {
     }
   }
 
+
   public List<Appointment> findAllByPatientId(PatientId pid) {
     List<Appointment> appointments = new ArrayList<>();
     hashMap
@@ -87,6 +86,16 @@ public class Database {
                           }
                         }));
     return appointments;
+  }
+
+  public Collection<Appointment> findAllByType(AppointmentType type) {
+    var innerHashMap = hashMap.get(type);
+    if (innerHashMap != null) {
+      return innerHashMap.values();
+    } else {
+      return new ArrayList<>();
+    }
+
   }
 
   public Optional<AppointmentId> findNextAppointmentId(AppointmentType type, AppointmentId thisId) {

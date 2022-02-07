@@ -13,6 +13,7 @@ public interface Patient extends Remote {
 
   /**
    * Book an appointment
+   *
    * @param patientId Patient id
    * @param appointmentId Appointment id
    * @param type Appointment capacity
@@ -23,6 +24,7 @@ public interface Patient extends Remote {
 
   /**
    * List all appointments associated with this patient
+   *
    * @param patientId Patient id
    * @return a list of appointments associated with this patient
    */
@@ -30,9 +32,11 @@ public interface Patient extends Remote {
 
   /**
    * Cancel an appointment
+   *
    * @param patientId Patient id
    * @param appointmentId Appointment id
    * @return true if operation is successful
    */
-  boolean cancelAppointment(PatientId patientId, AppointmentId appointmentId) throws RemoteException;
+  boolean cancelAppointment(PatientId patientId, AppointmentId appointmentId)
+      throws RemoteException;
 }
