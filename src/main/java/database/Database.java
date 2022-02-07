@@ -31,15 +31,20 @@ public class Database {
     hashMap.get(type).put(id, new Appointment(id, capacity));
   }
 
-  public synchronized void update(Appointment appointment, AppointmentId appointmentId) {
+  public synchronized void update(Appointment appointment, AppointmentType appointmentType) {
 
-    for (AppointmentType type : AppointmentType.values()) {
-      if (hashMap.get(type).containsKey(appointmentId)) {
-        AppointmentType type1 = type;
-        hashMap.get(type1).replace(appointmentId, appointment);
+    var innerHashmap = hashMap.get(appointmentType);
+    if (innerHashmap != null) {
+      AppointmentId id = appointment.getAppointmentId();
+      if (innerHashmap.get(id) == null) {
+        // the appointment doesn't exist before this update.
+        // something went wrong
+      } else {
+        innerHashmap.replace(id, appointment);
       }
     }
-  }
+    }
+
 
   public synchronized void remove(AppointmentId id, AppointmentType type) {
     var innerHashMap = hashMap.get(type);

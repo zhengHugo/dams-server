@@ -37,7 +37,7 @@ public class PatientImpl implements Patient {
     Optional<Appointment> appointment = database.findByTypeAndId(type, appointmentId);
     ArrayList<PatientId> patientIds = appointment.orElseThrow().addPatient(patientId);
     int capacity = appointment.get().getRemainingCapacity();
-    database.update(new Appointment(appointmentId, capacity, patientIds), appointmentId);
+    database.update(new Appointment(appointmentId, capacity, patientIds), type);
 
     logger.info(
         "Book appointment success: %s, %s".formatted(type.toString(), appointmentId.getId()));
@@ -52,15 +52,14 @@ public class PatientImpl implements Patient {
   @Override
   public synchronized boolean cancelAppointment(PatientId patientId, AppointmentId appointmentId)
       throws RemoteException {
-    List<Appointment> appointmentList = database.findAllByPatientId(patientId);
-    appointmentList.forEach(
-        appointment -> {
-          if (appointment.getAppointmentId() == appointmentId) {
-            ArrayList<PatientId> patientIds = appointment.removePatient(patientId);
-            int capacity = appointment.getRemainingCapacity();
-            database.update(new Appointment(appointmentId, capacity, patientIds), appointmentId);
-          }
-        });
+    for (AppointmentType type : AppointmentType.values()) {
+      if(appointmentId == database.findByTypeAndId(type, appointmentId).orElseThrow().getAppointmentId()) {
+        Appointment appointment =  database.findByTypeAndId(type, appointmentId).orElseThrow();
+        ArrayList<PatientId> patientIds = appointment.removePatient(patientId);
+        int capacity = appointment.getRemainingCapacity();
+        database.update(new Appointment(appointmentId, capacity, patientIds), type);
+      }
+    }
     logger.info("The target appointment is removed.");
     return true;
   }
