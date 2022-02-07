@@ -25,7 +25,8 @@ public class Main {
       UdpServer.startListening();
 
       Admin adminStub = (Admin) UnicastRemoteObject.exportObject(AdminImpl.getInstance(), 0);
-      Patient patientStub = (Patient) UnicastRemoteObject.exportObject(PatientImpl.getInstance(), 0);
+      Patient patientStub =
+          (Patient) UnicastRemoteObject.exportObject(PatientImpl.getInstance(), 0);
       Registry registry = LocateRegistry.getRegistry();
       registry.rebind("Admin" + GlobalConstants.thisCity.code, adminStub);
       registry.rebind("Patient" + GlobalConstants.thisCity.code, patientStub);
@@ -35,6 +36,5 @@ public class Main {
     } catch (RemoteException e) {
       e.printStackTrace();
     }
-
   }
 }

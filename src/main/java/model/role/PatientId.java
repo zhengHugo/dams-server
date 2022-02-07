@@ -7,7 +7,7 @@ public class PatientId implements ClientId {
   private final City city;
   private final int number;
 
-  PatientId(City city, int number) {
+  public PatientId(City city, int number) {
     this.city = city;
     this.number = number;
   }
