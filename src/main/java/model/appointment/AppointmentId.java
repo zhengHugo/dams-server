@@ -49,4 +49,9 @@ public class AppointmentId implements Serializable, Comparable<AppointmentId> {
   public int hashCode() {
     return this.getId().hashCode();
   }
+
+  @Override
+  public String toString() {
+    return this.getId();
+  }
 }

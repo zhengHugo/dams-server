@@ -94,9 +94,10 @@ public class AdminImpl implements Admin {
   }
 
   @Override
-  public synchronized boolean cancelAppointment(PatientId patientId, AppointmentId appointmentId)
+  public synchronized boolean cancelAppointment(
+      PatientId patientId, AppointmentType type, AppointmentId appointmentId)
       throws RemoteException {
-    return this.patient.cancelAppointment(patientId, appointmentId);
+    return this.patient.cancelAppointment(patientId, type, appointmentId);
   }
 
   private List<PatientId> getAppointmentPatientIds(AppointmentType type, AppointmentId id) {

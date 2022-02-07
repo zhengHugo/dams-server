@@ -1,9 +1,7 @@
 package service;
 
 import java.rmi.RemoteException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import api.Patient;
 import database.Database;
@@ -18,7 +16,6 @@ public class PatientImpl implements Patient {
   private static PatientImpl instance;
   private final Database database = Database.getInstance();
   private static final Logger logger = LogManager.getLogger();
-  private final PatientImpl patient = PatientImpl.getInstance();
 
   private PatientImpl() {}
 
@@ -34,14 +31,24 @@ public class PatientImpl implements Patient {
       PatientId patientId, AppointmentId appointmentId, AppointmentType type)
       throws RemoteException {
 
-    Appointment appointment = database.findByTypeAndId(type, appointmentId).orElseThrow();
-    appointment.addPatient(patientId);
-    appointment.getRemainingCapacity();
-    database.update(appointment, type);
-
-    logger.info(
-        "Book appointment success: %s, %s".formatted(type.toString(), appointmentId.getId()));
-    return true;
+    var appointmentOptional = database.findByTypeAndId(type, appointmentId);
+    if (appointmentOptional.isPresent()) {
+      var appointment = appointmentOptional.orElseThrow();
+      if (appointment.addPatient(patientId) && database.update(appointment, type)) {
+        logger.info(
+            "Book appointment success: %s, %s - %s"
+                .formatted(patientId.getId(), type.toString(), appointmentId.getId()));
+        return true;
+      } else {
+        logger.info(
+            "Cannot book appointment: %s, %s - %s"
+                .formatted(patientId.getId(), type.toString(), appointmentId.getId()));
+        return false;
+      }
+    } else {
+      logger.info("The appointment %s - %s doesn't exist.".formatted(type, appointmentId));
+      return false;
+    }
   }
 
   @Override
@@ -50,17 +57,26 @@ public class PatientImpl implements Patient {
   }
 
   @Override
-  public synchronized boolean cancelAppointment(PatientId patientId, AppointmentId appointmentId)
+  public synchronized boolean cancelAppointment(
+      PatientId patientId, AppointmentType type, AppointmentId appointmentId)
       throws RemoteException {
-    for (AppointmentType type : AppointmentType.values()) {
-      if (database.findByTypeAndId(type, appointmentId).isPresent()) {
-        Appointment appointment =  database.findByTypeAndId(type, appointmentId).orElseThrow();
-        appointment.removePatient(patientId);
-        appointment.getRemainingCapacity();
+    var appointmentOptional = database.findByTypeAndId(type, appointmentId);
+    if (appointmentOptional.isPresent()) {
+      var appointment = appointmentOptional.orElseThrow();
+      if (appointment.removePatient(patientId)) {
         database.update(appointment, type);
+        logger.info(
+            "Cancel appointment success: %s, %s - %s".formatted(patientId, type, appointmentId));
+        return true;
+      } else {
+        logger.info(
+            "The patient %s doesn't have an appointment with %s - %s"
+                .formatted(patientId, type, appointmentId));
+        return false;
       }
+    } else {
+      logger.info("The appointment %s doesn't exist".formatted(appointmentId));
+      return false;
     }
-    logger.info("The target appointment is removed.");
-    return true;
   }
 }

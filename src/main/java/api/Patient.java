@@ -37,6 +37,7 @@ public interface Patient extends Remote {
    * @param appointmentId Appointment id
    * @return true if operation is successful
    */
-  boolean cancelAppointment(PatientId patientId, AppointmentId appointmentId)
+  boolean cancelAppointment(
+      PatientId patientId, AppointmentType appointmentType, AppointmentId appointmentId)
       throws RemoteException;
 }

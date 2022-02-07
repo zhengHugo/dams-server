@@ -19,4 +19,9 @@ public class AdminId implements ClientId {
   public City getCity() {
     return city;
   }
+
+  @Override
+  public String toString() {
+    return this.getId();
+  }
 }

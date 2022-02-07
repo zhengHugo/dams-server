@@ -68,6 +68,6 @@ public interface Admin extends Remote {
    * @param appointmentId Appointment id
    * @return true if operation is successful
    */
-  boolean cancelAppointment(PatientId patientId, AppointmentId appointmentId)
+  boolean cancelAppointment(PatientId patientId, AppointmentType type, AppointmentId appointmentId)
       throws RemoteException;
 }

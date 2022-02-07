@@ -1,7 +1,11 @@
 package database;
 
-import java.util.*;
-
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.Optional;
 import model.appointment.Appointment;
 import model.appointment.AppointmentId;
 import model.appointment.AppointmentType;
@@ -29,20 +33,14 @@ public class Database {
     hashMap.get(type).put(id, new Appointment(id, capacity));
   }
 
-  public synchronized void update(Appointment appointment, AppointmentType appointmentType) {
-
+  public synchronized boolean update(Appointment appointment, AppointmentType appointmentType) {
     var innerHashmap = hashMap.get(appointmentType);
     if (innerHashmap != null) {
       AppointmentId id = appointment.getAppointmentId();
-      if (innerHashmap.get(id) == null) {
-        // the appointment doesn't exist before this update.
-        // something went wrong
-      } else {
-        innerHashmap.replace(id, appointment);
-      }
+      return innerHashmap.replace(id, appointment) != null;
     }
-    }
-
+    return false;
+  }
 
   public synchronized void remove(AppointmentId id, AppointmentType type) {
     var innerHashMap = hashMap.get(type);
@@ -68,23 +66,15 @@ public class Database {
     }
   }
 
-
   public List<Appointment> findAllByPatientId(PatientId pid) {
     List<Appointment> appointments = new ArrayList<>();
-    hashMap
-        .values()
-        .forEach(
-            mmp ->
-                mmp.values()
-                    .forEach(
-                        mmp2 -> {
-                          ArrayList<PatientId> ids = mmp2.getPatientIds();
-                          for (PatientId idd : ids) {
-                            if (idd == pid) {
-                              appointments.add(mmp2);
-                            }
-                          }
-                        }));
+    for (var innerHashMap : hashMap.values()) {
+      for (var appointment : innerHashMap.values()) {
+        if (appointment.getPatientIds().contains(pid)) {
+          appointments.add(appointment);
+        }
+      }
+    }
     return appointments;
   }
 
@@ -95,7 +85,6 @@ public class Database {
     } else {
       return new ArrayList<>();
     }
-
   }
 
   public Optional<AppointmentId> findNextAppointmentId(AppointmentType type, AppointmentId thisId) {
