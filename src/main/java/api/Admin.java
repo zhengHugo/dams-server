@@ -59,7 +59,7 @@ public interface Admin extends Remote {
    * @param patientId Patient id
    * @return a list of appointments associated with this patient
    */
-  List<Appointment> getAppointmentSchedule(PatientId patientId) throws RemoteException;
+  List<AppointmentId> getAppointmentSchedule(PatientId patientId) throws RemoteException;
 
   /**
    * Cancel an appointment

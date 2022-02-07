@@ -25,4 +25,23 @@ public class PatientId implements ClientId {
   public String toString() {
     return this.getId();
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    PatientId patientId = (PatientId) o;
+
+    return this.getId().equals(patientId.getId());
+  }
+
+  @Override
+  public int hashCode() {
+    return this.getId().hashCode();
+  }
 }

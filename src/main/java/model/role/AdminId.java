@@ -24,4 +24,23 @@ public class AdminId implements ClientId {
   public String toString() {
     return this.getId();
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    AdminId adminId = (AdminId) o;
+
+    return this.getId().equals(adminId.getId());
+  }
+
+  @Override
+  public int hashCode() {
+    return this.getId().hashCode();
+  }
 }

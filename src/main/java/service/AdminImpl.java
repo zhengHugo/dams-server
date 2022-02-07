@@ -89,7 +89,7 @@ public class AdminImpl implements Admin {
   }
 
   @Override
-  public List<Appointment> getAppointmentSchedule(PatientId patientId) throws RemoteException {
+  public List<AppointmentId> getAppointmentSchedule(PatientId patientId) throws RemoteException {
     return this.patient.getAppointmentSchedule(patientId);
   }
 

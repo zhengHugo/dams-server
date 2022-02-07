@@ -5,6 +5,7 @@ import java.util.List;
 
 import api.Patient;
 import database.Database;
+import java.util.stream.Collectors;
 import model.appointment.Appointment;
 import model.appointment.AppointmentId;
 import model.appointment.AppointmentType;
@@ -52,8 +53,11 @@ public class PatientImpl implements Patient {
   }
 
   @Override
-  public List<Appointment> getAppointmentSchedule(PatientId patientId) throws RemoteException {
-    return database.findAllByPatientId(patientId);
+  public List<AppointmentId> getAppointmentSchedule(PatientId patientId) throws RemoteException {
+    // TODO: list from all cities
+    return database.findAllByPatientId(patientId).stream()
+        .map(Appointment::getAppointmentId)
+        .collect(Collectors.toList());
   }
 
   @Override
