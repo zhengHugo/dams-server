@@ -20,7 +20,7 @@ public class PatientImpl implements Patient {
   private static final Logger logger = LogManager.getLogger();
   private final PatientImpl patient = PatientImpl.getInstance();
 
-  private PatientImpl(){}
+  private PatientImpl() {}
 
   public static synchronized PatientImpl getInstance() {
     if (instance == null) {
@@ -31,17 +31,16 @@ public class PatientImpl implements Patient {
 
   @Override
   public synchronized boolean bookAppointment(
-          PatientId patientId, AppointmentId appointmentId, AppointmentType type)
-          throws RemoteException {
+      PatientId patientId, AppointmentId appointmentId, AppointmentType type)
+      throws RemoteException {
 
     Optional<Appointment> appointment = database.findByTypeAndId(type, appointmentId);
-    ArrayList<PatientId> patientIds = appointment.get().addPatient(patientId);
+    ArrayList<PatientId> patientIds = appointment.orElseThrow().addPatient(patientId);
     int capacity = appointment.get().getRemainingCapacity();
     database.update(new Appointment(appointmentId, capacity, patientIds), appointmentId);
 
     logger.info(
-            "Book appointment success: %s, %s"
-                    .formatted(type.toString(), appointmentId.getId()));
+        "Book appointment success: %s, %s".formatted(type.toString(), appointmentId.getId()));
     return true;
   }
 
@@ -52,15 +51,16 @@ public class PatientImpl implements Patient {
 
   @Override
   public synchronized boolean cancelAppointment(PatientId patientId, AppointmentId appointmentId)
-          throws RemoteException {
+      throws RemoteException {
     List<Appointment> appointmentList = database.findAllByPatientId(patientId);
-    appointmentList.forEach(appointment -> {
-      if (appointment.getAppointmentId() == appointmentId) {
-        ArrayList<PatientId> patientIds = appointment.removePatient(patientId);
-        int capacity = appointment.getRemainingCapacity();
-        database.update(new Appointment(appointmentId, capacity, patientIds), appointmentId);
-      }
-    });
+    appointmentList.forEach(
+        appointment -> {
+          if (appointment.getAppointmentId() == appointmentId) {
+            ArrayList<PatientId> patientIds = appointment.removePatient(patientId);
+            int capacity = appointment.getRemainingCapacity();
+            database.update(new Appointment(appointmentId, capacity, patientIds), appointmentId);
+          }
+        });
     logger.info("The target appointment is removed.");
     return true;
   }

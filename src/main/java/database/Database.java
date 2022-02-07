@@ -31,19 +31,15 @@ public class Database {
     hashMap.get(type).put(id, new Appointment(id, capacity));
   }
 
-
   public synchronized void update(Appointment appointment, AppointmentId appointmentId) {
 
-    for (AppointmentType type :AppointmentType.values()) {
-     if(hashMap.get(type).containsKey(appointmentId)) {
-       AppointmentType type1 = type;
-       hashMap.get(type1).replace(appointmentId, appointment);
-     }
-   }
-
-
+    for (AppointmentType type : AppointmentType.values()) {
+      if (hashMap.get(type).containsKey(appointmentId)) {
+        AppointmentType type1 = type;
+        hashMap.get(type1).replace(appointmentId, appointment);
+      }
+    }
   }
-
 
   public synchronized void remove(AppointmentId id, AppointmentType type) {
     var innerHashMap = hashMap.get(type);
@@ -53,16 +49,6 @@ public class Database {
         innerHashMap.remove(id);
       }
     }
-  }
-
-  public synchronized void remove(PatientId patientId, AppointmentId appointmentId) {
-    hashMap.values().forEach(app-> {
-      for (AppointmentId id:app.keySet()){
-        if (id == appointmentId) {
-          app.remove(id);
-        }
-      }
-    });
   }
 
   public Optional<Appointment> findByTypeAndId(AppointmentType type, AppointmentId id) {
@@ -81,44 +67,42 @@ public class Database {
 
   public List<Appointment> findAllByPatientId(PatientId pid) {
     List<Appointment> appointments = new ArrayList<>();
-    hashMap.values().forEach(mmp-> mmp.values().forEach(mmp2-> {
-              ArrayList<PatientId> ids= mmp2.getPatientIds();
-              for(PatientId idd:ids){
-                if (idd == pid) {
-                  appointments.add(mmp2);
-                }
-              }
-            })
-    );
-      return appointments;
-
+    hashMap
+        .values()
+        .forEach(
+            mmp ->
+                mmp.values()
+                    .forEach(
+                        mmp2 -> {
+                          ArrayList<PatientId> ids = mmp2.getPatientIds();
+                          for (PatientId idd : ids) {
+                            if (idd == pid) {
+                              appointments.add(mmp2);
+                            }
+                          }
+                        }));
+    return appointments;
   }
 
-
-
-
-
-
-  public Optional<AppointmentId> findNextAppointmentId(
-          AppointmentType type, AppointmentId thisId) {
+  public Optional<AppointmentId> findNextAppointmentId(AppointmentType type, AppointmentId thisId) {
     // 1. Get the inner hashmap that contain this appointment
     // 2. Iterator over the inner hashmap and get the next available one
     var innerHashMap = hashMap.get(type);
     if (innerHashMap != null) {
       AppointmentId nextAvailableAppointmentId = null;
       for (Entry<AppointmentId, Appointment> appointmentIdAppointmentEntry :
-              innerHashMap.entrySet()) {
+          innerHashMap.entrySet()) {
         var nextId = appointmentIdAppointmentEntry.getKey();
         if (thisId.compareTo(nextId) < 0) {
           if (nextAvailableAppointmentId == null
-                  || nextId.compareTo(nextAvailableAppointmentId) < 0) {
+              || nextId.compareTo(nextAvailableAppointmentId) < 0) {
             nextAvailableAppointmentId = nextId;
           }
         }
       }
       return nextAvailableAppointmentId == null
-              ? Optional.empty()
-              : Optional.of(nextAvailableAppointmentId);
+          ? Optional.empty()
+          : Optional.of(nextAvailableAppointmentId);
     }
     return Optional.empty();
   }
