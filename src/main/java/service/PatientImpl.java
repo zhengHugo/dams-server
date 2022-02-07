@@ -34,10 +34,10 @@ public class PatientImpl implements Patient {
       PatientId patientId, AppointmentId appointmentId, AppointmentType type)
       throws RemoteException {
 
-    Optional<Appointment> appointment = database.findByTypeAndId(type, appointmentId);
-    ArrayList<PatientId> patientIds = appointment.orElseThrow().addPatient(patientId);
-    int capacity = appointment.get().getRemainingCapacity();
-    database.update(new Appointment(appointmentId, capacity, patientIds), type);
+    Appointment appointment = database.findByTypeAndId(type, appointmentId).orElseThrow();
+    appointment.addPatient(patientId);
+    appointment.getRemainingCapacity();
+    database.update(appointment, type);
 
     logger.info(
         "Book appointment success: %s, %s".formatted(type.toString(), appointmentId.getId()));
@@ -53,11 +53,11 @@ public class PatientImpl implements Patient {
   public synchronized boolean cancelAppointment(PatientId patientId, AppointmentId appointmentId)
       throws RemoteException {
     for (AppointmentType type : AppointmentType.values()) {
-      if(appointmentId == database.findByTypeAndId(type, appointmentId).orElseThrow().getAppointmentId()) {
+      if (database.findByTypeAndId(type, appointmentId).isPresent()) {
         Appointment appointment =  database.findByTypeAndId(type, appointmentId).orElseThrow();
-        ArrayList<PatientId> patientIds = appointment.removePatient(patientId);
-        int capacity = appointment.getRemainingCapacity();
-        database.update(new Appointment(appointmentId, capacity, patientIds), type);
+        appointment.removePatient(patientId);
+        appointment.getRemainingCapacity();
+        database.update(appointment, type);
       }
     }
     logger.info("The target appointment is removed.");

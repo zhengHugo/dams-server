@@ -15,12 +15,6 @@ public class Appointment {
     this.patientIds = new ArrayList<>();
   }
 
-  public Appointment(AppointmentId appointmentId, int capacity, ArrayList<PatientId> patientIds) {
-    this.appointmentId = appointmentId;
-    this.capacity = capacity;
-    this.patientIds = patientIds;
-  }
-
   public AppointmentId getAppointmentId() {
     return this.appointmentId;
   }
@@ -48,10 +42,11 @@ public class Appointment {
     }
   }
 
-  public synchronized ArrayList<PatientId> removePatient(PatientId id) {
-    if (patientIds.size() < capacity) {
+  public synchronized void removePatient(PatientId id) {
+    if (patientIds.size() > 0) {
       this.patientIds.remove(id);
+    } else {
+      throw new IllegalArgumentException("No patient can be removed");
     }
-    return patientIds;
   }
 }
