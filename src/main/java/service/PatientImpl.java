@@ -36,13 +36,22 @@ public class PatientImpl implements Patient {
   public synchronized boolean bookAppointment(
       PatientId patientId, AppointmentId appointmentId, AppointmentType type)
       throws RemoteException, NotBoundException {
+    Registry registry = LocateRegistry.getRegistry("localhost", 1099);
+    Patient patientRemote = (Patient) registry.lookup("Patient" + appointmentId.getCity().code);
+    // check for multiple bookings in one day
+    if (getAppointmentSchedule(patientId).stream()
+        .map(AppointmentId::getDate)
+        .toList()
+        .contains(appointmentId.getDate())) {
+      logger.info("The patient %s already has an appointment %s - %s. Booking not proceeded"
+          .formatted(patientId, type, appointmentId));
+      return false;
+    }
     if (GlobalConstants.thisCity.equals(appointmentId.getCity())) {
       // patient book an appointment in its own city
       return bookLocalAppointment(patientId, appointmentId, type);
     } else {
       // call bookLocalAppointment at the city according to the appointment
-      Registry registry = LocateRegistry.getRegistry("localhost", 1099);
-      Patient patientRemote = (Patient) registry.lookup("Patient" + appointmentId.getCity().code);
       // check the 3 times/week booking limit first
       int thisWeek = appointmentId.getDate().getWeekOfWeekyear();
       int allAppsInThisWeekCount = patientRemote.getAppointmentSchedule(patientId).stream()
