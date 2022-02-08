@@ -5,22 +5,20 @@ import java.io.Serializable;
 import model.common.City;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
 public class AppointmentId implements Serializable, Comparable<AppointmentId> {
   private final City city;
   private final AppointmentTime time;
   private final LocalDate date;
-  private final DateTimeFormatter formatter = DateTimeFormat.forPattern("ddMMyyyy");
 
   public AppointmentId(City city, AppointmentTime time, String dateString) {
     this.city = city;
     this.time = time;
-    this.date = LocalDate.parse(dateString, formatter);
+    this.date = LocalDate.parse(dateString, DateTimeFormat.forPattern("ddMMyyyy"));
   }
 
   public String getId() {
-    return city.code + time.code + date.toString(formatter);
+    return city.code + time.code + date.toString(DateTimeFormat.forPattern("ddMMyyyy"));
   }
 
   public City getCity() {
