@@ -1,5 +1,6 @@
 package api;
 
+import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
@@ -59,7 +60,8 @@ public interface Admin extends Remote {
    * @param patientId Patient id
    * @return a list of appointments associated with this patient
    */
-  List<AppointmentId> getAppointmentSchedule(PatientId patientId) throws RemoteException;
+  List<AppointmentId> getAppointmentSchedule(PatientId patientId)
+      throws RemoteException, NotBoundException;
 
   /**
    * Cancel an appointment

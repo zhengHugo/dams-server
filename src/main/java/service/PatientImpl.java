@@ -1,17 +1,28 @@
 package service;
 
+import static service.interserver.UdpClient.requestAppointments;
+
+import api.Admin;
+import common.GlobalConstants;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.sql.Array;
+import java.util.ArrayList;
 import java.util.List;
 
 import api.Patient;
 import database.Database;
 import java.util.stream.Collectors;
 import model.appointment.Appointment;
+import model.appointment.AppointmentAvailability;
 import model.appointment.AppointmentId;
 import model.appointment.AppointmentType;
 import model.role.PatientId;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import service.interserver.UdpClient;
 
 public class PatientImpl implements Patient {
   private static PatientImpl instance;
@@ -53,11 +64,31 @@ public class PatientImpl implements Patient {
   }
 
   @Override
-  public List<AppointmentId> getAppointmentSchedule(PatientId patientId) throws RemoteException {
+  public List<AppointmentId> getLocalAppointmentSchedule(PatientId patientId) throws RemoteException {
     // TODO: list from all cities
     return database.findAllByPatientId(patientId).stream()
         .map(Appointment::getAppointmentId)
         .collect(Collectors.toList());
+  }
+
+  @Override
+  public List<AppointmentId> getAppointmentSchedule(PatientId patientId)
+      throws RemoteException, NotBoundException {
+    List<AppointmentId> allAppointmentIds = new ArrayList<>(getLocalAppointmentSchedule(patientId));
+    Registry registry = LocateRegistry.getRegistry("localhost", 1099);
+    Patient patientRemote1 = (Patient) switch (GlobalConstants.thisCity) {
+      case Montreal -> registry.lookup("PatientQUE");
+      case Quebec -> registry.lookup("PatientSHE");
+      case Sherbrooke -> registry.lookup("PatientMTL");
+    };
+    Patient patientRemote2 = (Patient) switch (GlobalConstants.thisCity) {
+      case Montreal -> registry.lookup("PatientSHE");
+      case Quebec -> registry.lookup("PatientMTL");
+      case Sherbrooke -> registry.lookup("PatientQUE");
+    };
+    allAppointmentIds.addAll(patientRemote1.getLocalAppointmentSchedule(patientId));
+    allAppointmentIds.addAll(patientRemote2.getLocalAppointmentSchedule(patientId));
+    return allAppointmentIds;
   }
 
   @Override
