@@ -5,6 +5,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
 
+import model.appointment.Appointment;
 import model.appointment.AppointmentAvailability;
 import model.appointment.AppointmentId;
 import model.appointment.AppointmentType;
@@ -59,7 +60,7 @@ public interface Admin extends Remote {
    * @param patientId Patient id
    * @return a list of appointments associated with this patient
    */
-  List<AppointmentId> getAppointmentSchedule(PatientId patientId)
+  List<Appointment> getAppointmentSchedule(PatientId patientId)
       throws RemoteException, NotBoundException;
 
   /**

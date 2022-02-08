@@ -30,7 +30,7 @@ public class Database {
     if (!hashMap.containsKey(type)) {
       hashMap.put(type, new HashMap<>());
     }
-    hashMap.get(type).put(id, new Appointment(id, capacity));
+    hashMap.get(type).put(id, new Appointment(id, capacity, type));
   }
 
   public synchronized boolean update(Appointment appointment, AppointmentType appointmentType) {

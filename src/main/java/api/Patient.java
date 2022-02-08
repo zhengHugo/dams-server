@@ -5,6 +5,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
 
+import model.appointment.Appointment;
 import model.appointment.AppointmentId;
 import model.appointment.AppointmentType;
 import model.role.PatientId;
@@ -39,7 +40,7 @@ public interface Patient extends Remote {
    * @param patientId Patient id
    * @return a list of appointments associated with this patient
    */
-  List<AppointmentId> getAppointmentSchedule(PatientId patientId)
+  List<Appointment> getAppointmentSchedule(PatientId patientId)
       throws RemoteException, NotBoundException;
 
   /**
@@ -48,7 +49,7 @@ public interface Patient extends Remote {
    * @param patientId Patient id
    * @return a list of appointments associated with this patient
    */
-  List<AppointmentId> getLocalAppointmentSchedule(PatientId patientId) throws RemoteException;
+  List<Appointment> getLocalAppointmentSchedule(PatientId patientId) throws RemoteException;
 
   /**
    * Cancel an appointment

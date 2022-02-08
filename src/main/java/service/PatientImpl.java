@@ -10,7 +10,6 @@ import java.util.List;
 
 import api.Patient;
 import database.Database;
-import java.util.stream.Collectors;
 import model.appointment.Appointment;
 import model.appointment.AppointmentId;
 import model.appointment.AppointmentType;
@@ -40,7 +39,8 @@ public class PatientImpl implements Patient {
     Patient patientRemote = (Patient) registry.lookup("Patient" + appointmentId.getCity().code);
     // check for multiple bookings in one day
     if (getAppointmentSchedule(patientId).stream()
-        .map(AppointmentId::getDate)
+        .filter(app -> app.getType().equals(type))
+        .map(app -> app.getAppointmentId().getDate())
         .toList()
         .contains(appointmentId.getDate())) {
       logger.info("The patient %s already has an appointment %s - %s. Booking not proceeded"
@@ -55,10 +55,10 @@ public class PatientImpl implements Patient {
       // check the 3 times/week booking limit first
       int thisWeek = appointmentId.getDate().getWeekOfWeekyear();
       int allAppsInThisWeekCount = patientRemote.getAppointmentSchedule(patientId).stream()
-          .filter(appId -> appId.getDate().getWeekOfWeekyear() == thisWeek)
+          .filter(app -> app.getAppointmentId().getDate().getWeekOfWeekyear() == thisWeek)
           .toList().size();
       int localAppsInThisWeekCount = getLocalAppointmentSchedule(patientId).stream()
-          .filter(appId -> appId.getDate().getWeekOfWeekyear() == thisWeek)
+          .filter(app -> app.getAppointmentId().getDate().getWeekOfWeekyear() == thisWeek)
           .toList().size();
       int nonlocalAppCount = allAppsInThisWeekCount - localAppsInThisWeekCount;
       if (nonlocalAppCount < 3){
@@ -97,16 +97,14 @@ public class PatientImpl implements Patient {
   }
 
   @Override
-  public List<AppointmentId> getLocalAppointmentSchedule(PatientId patientId) throws RemoteException {
-    return database.findAllByPatientId(patientId).stream()
-        .map(Appointment::getAppointmentId)
-        .collect(Collectors.toList());
+  public List<Appointment> getLocalAppointmentSchedule(PatientId patientId) throws RemoteException {
+    return database.findAllByPatientId(patientId);
   }
 
   @Override
-  public List<AppointmentId> getAppointmentSchedule(PatientId patientId)
+  public List<Appointment> getAppointmentSchedule(PatientId patientId)
       throws RemoteException, NotBoundException {
-    List<AppointmentId> allAppointmentIds = new ArrayList<>(getLocalAppointmentSchedule(patientId));
+    List<Appointment> allAppointmentIds = new ArrayList<>(getLocalAppointmentSchedule(patientId));
     Registry registry = LocateRegistry.getRegistry("localhost", 1099);
     Patient patientRemote1 = (Patient) switch (GlobalConstants.thisCity) {
       case Montreal -> registry.lookup("PatientQUE");
