@@ -1,14 +1,10 @@
 package service;
 
-import static service.interserver.UdpClient.requestAppointments;
-
-import api.Admin;
 import common.GlobalConstants;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,13 +12,11 @@ import api.Patient;
 import database.Database;
 import java.util.stream.Collectors;
 import model.appointment.Appointment;
-import model.appointment.AppointmentAvailability;
 import model.appointment.AppointmentId;
 import model.appointment.AppointmentType;
 import model.role.PatientId;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import service.interserver.UdpClient;
 
 public class PatientImpl implements Patient {
   private static PatientImpl instance;
@@ -41,8 +35,38 @@ public class PatientImpl implements Patient {
   @Override
   public synchronized boolean bookAppointment(
       PatientId patientId, AppointmentId appointmentId, AppointmentType type)
-      throws RemoteException {
+      throws RemoteException, NotBoundException {
+    if (GlobalConstants.thisCity.equals(appointmentId.getCity())) {
+      // patient book an appointment in its own city
+      return bookLocalAppointment(patientId, appointmentId, type);
+    } else {
+      // call bookLocalAppointment at the city according to the appointment
+      Registry registry = LocateRegistry.getRegistry("localhost", 1099);
+      Patient patientRemote = (Patient) registry.lookup("Patient" + appointmentId.getCity().code);
+      // check the 3 times/week booking limit first
+      int thisWeek = appointmentId.getDate().getWeekOfWeekyear();
+      int allAppsInThisWeekCount = patientRemote.getAppointmentSchedule(patientId).stream()
+          .filter(appId -> appId.getDate().getWeekOfWeekyear() == thisWeek)
+          .toList().size();
+      int localAppsInThisWeekCount = getLocalAppointmentSchedule(patientId).stream()
+          .filter(appId -> appId.getDate().getWeekOfWeekyear() == thisWeek)
+          .toList().size();
+      int nonlocalAppCount = allAppsInThisWeekCount - localAppsInThisWeekCount;
+      if (nonlocalAppCount < 3){
+        logger.info("Call server " + appointmentId.getCity().code +
+            " to book appointment for %s, %s - %s".formatted(patientId, type, appointmentId));
+        return patientRemote.bookLocalAppointment(patientId, appointmentId, type);
+      } else {
+        logger.info("Non-local appointments over limit. Cannot book for %s, %s - %s"
+            .formatted(patientId, type, appointmentId));
+        return false;
+      }
+    }
+  }
 
+  @Override
+  public boolean bookLocalAppointment(PatientId patientId, AppointmentId appointmentId,
+      AppointmentType type) throws RemoteException {
     var appointmentOptional = database.findByTypeAndId(type, appointmentId);
     if (appointmentOptional.isPresent()) {
       var appointment = appointmentOptional.orElseThrow();
@@ -65,7 +89,6 @@ public class PatientImpl implements Patient {
 
   @Override
   public List<AppointmentId> getLocalAppointmentSchedule(PatientId patientId) throws RemoteException {
-    // TODO: list from all cities
     return database.findAllByPatientId(patientId).stream()
         .map(Appointment::getAppointmentId)
         .collect(Collectors.toList());
@@ -114,4 +137,5 @@ public class PatientImpl implements Patient {
       return false;
     }
   }
+
 }

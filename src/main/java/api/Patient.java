@@ -21,6 +21,17 @@ public interface Patient extends Remote {
    * @return true if operation is successful
    */
   boolean bookAppointment(PatientId patientId, AppointmentId appointmentId, AppointmentType type)
+      throws RemoteException, NotBoundException;
+
+  /**
+   * Book an appointment, only for local
+   *
+   * @param patientId Patient id
+   * @param appointmentId Appointment id
+   * @param type Appointment capacity
+   * @return true if operation is successful
+   */
+  boolean bookLocalAppointment(PatientId patientId, AppointmentId appointmentId, AppointmentType type)
       throws RemoteException;
 
   /**

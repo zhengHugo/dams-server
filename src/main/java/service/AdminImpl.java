@@ -84,7 +84,7 @@ public class AdminImpl implements Admin {
   @Override
   public synchronized boolean bookAppointment(
       PatientId patientId, AppointmentId appointmentId, AppointmentType type)
-      throws RemoteException {
+      throws RemoteException, NotBoundException {
     return this.patient.bookAppointment(patientId, appointmentId, type);
   }
 

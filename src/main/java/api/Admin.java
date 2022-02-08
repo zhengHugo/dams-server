@@ -52,7 +52,7 @@ public interface Admin extends Remote {
    * @return true if operation is successful
    */
   boolean bookAppointment(PatientId patientId, AppointmentId appointmentId, AppointmentType type)
-      throws RemoteException;
+      throws RemoteException, NotBoundException;
 
   /**
    * List all appointments associated with this patient
