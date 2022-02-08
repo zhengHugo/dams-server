@@ -1,8 +1,6 @@
 package model.appointment;
 
-import java.io.Serializable;
-
-public enum AppointmentType implements Serializable {
+public enum AppointmentType{
   Physician,
   Surgeon,
   Dental,

@@ -16,6 +16,9 @@ import model.appointment.AppointmentType;
 import model.role.PatientId;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 public class PatientImpl implements Patient {
   private static PatientImpl instance;
@@ -40,9 +43,9 @@ public class PatientImpl implements Patient {
     // check for multiple bookings in one day
     if (getAppointmentSchedule(patientId).stream()
         .filter(app -> app.getType().equals(type))
-        .map(app -> app.getAppointmentId().getDate())
+        .map(app -> app.getAppointmentId().getDateString())
         .toList()
-        .contains(appointmentId.getDate())) {
+        .contains(appointmentId.getDateString())) {
       logger.info("The patient %s already has an appointment %s - %s. Booking not proceeded"
           .formatted(patientId, type, appointmentId));
       return false;
@@ -53,12 +56,19 @@ public class PatientImpl implements Patient {
     } else {
       // call bookLocalAppointment at the city according to the appointment
       // check the 3 times/week booking limit first
-      int thisWeek = appointmentId.getDate().getWeekOfWeekyear();
+      DateTimeFormatter formatter = DateTimeFormat.forPattern("ddMMyyyy");
+      int thisWeek = DateTime.parse(appointmentId.getDateString(), formatter).getWeekOfWeekyear();
       int allAppsInThisWeekCount = patientRemote.getAppointmentSchedule(patientId).stream()
-          .filter(app -> app.getAppointmentId().getDate().getWeekOfWeekyear() == thisWeek)
+          .filter(app ->
+              DateTime
+                  .parse(app.getAppointmentId().getDateString(), formatter)
+                  .getWeekOfWeekyear() == thisWeek)
           .toList().size();
       int localAppsInThisWeekCount = getLocalAppointmentSchedule(patientId).stream()
-          .filter(app -> app.getAppointmentId().getDate().getWeekOfWeekyear() == thisWeek)
+          .filter(app ->
+              DateTime
+                  .parse(app.getAppointmentId().getDateString(), formatter)
+                  .getWeekOfWeekyear() == thisWeek)
           .toList().size();
       int nonlocalAppCount = allAppsInThisWeekCount - localAppsInThisWeekCount;
       if (nonlocalAppCount < 3){

@@ -3,38 +3,51 @@ package model.appointment;
 import java.io.Serializable;
 
 import model.common.City;
-import org.joda.time.LocalDate;
-import org.joda.time.format.DateTimeFormat;
 
 public class AppointmentId implements Serializable, Comparable<AppointmentId> {
   private final City city;
   private final AppointmentTime time;
-  private final LocalDate date;
+  private final String dateString;
 
   public AppointmentId(City city, AppointmentTime time, String dateString) {
     this.city = city;
     this.time = time;
-    this.date = LocalDate.parse(dateString, DateTimeFormat.forPattern("ddMMyyyy"));
+    this.dateString = dateString;
   }
 
   public String getId() {
-    return city.code + time.code + date.toString(DateTimeFormat.forPattern("ddMMyyyy"));
+    return city.code + time.code + dateString;
   }
 
   public City getCity() {
     return city;
   }
 
-  public LocalDate getDate() {
-    return date;
+  public String getDateString() {
+    return dateString;
   }
 
   @Override
   public int compareTo(AppointmentId anotherId) {
-    if (this.date.compareTo(anotherId.date) == 0) {
-      return this.time.compareTo(anotherId.time);
+    var thisDateNumbers = this.splitDateString();
+    var otherDateNumbers = anotherId.splitDateString();
+    if (thisDateNumbers[2] == otherDateNumbers[2]) {
+      // same year
+      if (thisDateNumbers[1] == otherDateNumbers[1]) {
+        // same month
+        if (thisDateNumbers[0] == otherDateNumbers[0]) {
+          // same date
+          return this.time.compareTo(anotherId.time);
+        } else {
+          return thisDateNumbers[0] - otherDateNumbers[0];
+        }
+      } else {
+        return thisDateNumbers[1] - otherDateNumbers[1];
+
+      }
+    } else {
+      return thisDateNumbers[2] - otherDateNumbers[2];
     }
-    return this.date.compareTo(anotherId.date);
   }
 
   @Override
@@ -59,5 +72,12 @@ public class AppointmentId implements Serializable, Comparable<AppointmentId> {
   @Override
   public String toString() {
     return this.getId();
+  }
+
+  private int[] splitDateString() {
+    int date = Integer.parseInt(dateString.substring(0, 2));
+    int month = Integer.parseInt(dateString.substring(2, 4));
+    int year = Integer.parseInt(dateString.substring(4, 8));
+    return new int[] {date, month, year};
   }
 }
