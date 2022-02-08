@@ -1,10 +1,6 @@
 package model.appointment;
 
 import java.io.Serializable;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 
 import model.common.City;
 import org.joda.time.LocalDate;
