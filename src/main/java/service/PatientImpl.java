@@ -74,7 +74,7 @@ public class PatientImpl implements Patient {
   }
 
   @Override
-  public boolean bookLocalAppointment(PatientId patientId, AppointmentId appointmentId,
+  public synchronized boolean bookLocalAppointment(PatientId patientId, AppointmentId appointmentId,
       AppointmentType type) throws RemoteException {
     var appointmentOptional = database.findByTypeAndId(type, appointmentId);
     if (appointmentOptional.isPresent()) {
