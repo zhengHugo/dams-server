@@ -1,5 +1,14 @@
-.gradle
+# IDEs
 .idea
+.vscode
+
+# build tools
+.gradle
 gradle
-build
+
+# logs
 logs
+
+# binaries
+build
+bin
